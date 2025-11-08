@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 Color mainColor = Color(0xff1C2135);
 Color butColor = Color(0xffE83D67);
+Color secondColor = Color(0xff333244);
 
 TextStyle textStylygray300w20px = TextStyle(
   color: Color(0xff8B8C9E),

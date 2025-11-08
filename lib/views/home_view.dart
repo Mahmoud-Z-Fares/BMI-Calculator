@@ -1,5 +1,9 @@
 import 'package:bmi_app/consts.dart';
+import 'package:bmi_app/views/result_screen.dart';
+import 'package:bmi_app/widgets/custom_age_wieght.dart';
 import 'package:bmi_app/widgets/custom_app_bar.dart';
+import 'package:bmi_app/widgets/custom_gender_widget.dart';
+import 'package:bmi_app/widgets/custom_slider.dart';
 import 'package:flutter/material.dart';
 
 class HomeView extends StatefulWidget {
@@ -12,87 +16,114 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   double sliderValue = 50;
+  int wieght = 20;
+  int age = 25;
+  bool isMale = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(),
-      body: Column(
-        children: [
-          Row(
-            spacing: 10,
-            children: [
-              CustomGender(title: "Male", picPath: "assets/images/male.png"),
-
-              CustomGender(title: "Femal", picPath: "assets/images/female.png"),
-            ],
-          ),
-          CustomSlider(
-            sliderValue: sliderValue,
-            onChanged: (v) {
-              sliderValue = v;
-
-              setState(() {});
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class CustomSlider extends StatelessWidget {
-  CustomSlider({super.key, this.onChanged, required this.sliderValue});
-
-  double sliderValue;
-  void Function(double)? onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      decoration: BoxDecoration(color: mainColor),
-      child: Column(
-        children: [
-          CustomText(title: "Height"),
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: sliderValue.round().toString(),
-                  style: textStylwhite300w40px,
-                ),
-                TextSpan(
-                  text: "CM",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+      bottomNavigationBar: CustomButton(
+        title: "Calculate",
+        onPressed: () {
+          Navigator.pushNamed(
+            context,
+            ResultScreen.routeName,
+            arguments: BMICalculator(
+              gender: "Male",
+              age: age,
+              wieght: wieght,
+              height: sliderValue.toInt(),
             ),
-          ),
-          Slider(value: sliderValue, onChanged: onChanged, min: 50, max: 200),
-        ],
+          );
+        },
       ),
-    );
-  }
-}
-
-class CustomGender extends StatelessWidget {
-  const CustomGender({super.key, required this.title, required this.picPath});
-  final String title;
-  final String picPath;
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(color: mainColor),
+      backgroundColor: mainColor,
+      appBar: CustomAppBar(),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(picPath),
-            CustomText(title: title),
+            SizedBox(height: 20),
+            //Wiegh and Height row
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 10,
+                children: [
+                  CustomGender(
+                    onTap: () => setState(() => isMale = true),
+
+                    isMale: isMale,
+                    title: "Male",
+                    picPath: "assets/images/male.png",
+                  ),
+
+                  CustomGender(
+                    onTap: () => setState(() => isMale = false),
+                    isMale: !isMale,
+                    title: "Femal",
+                    picPath: "assets/images/female.png",
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 25),
+            Expanded(
+              child: CustomSlider(
+                sliderValue: sliderValue,
+                onChanged: (v) {
+                  sliderValue = v;
+
+                  setState(() {});
+                },
+              ),
+            ),
+            SizedBox(height: 25),
+
+            Expanded(
+              child: Row(
+                spacing: 10,
+                children: [
+                  Expanded(
+                    child: CustomAgeandWieghtWidget(
+                      color: Color(0xff24263B),
+                      heroTag: "h11",
+                      heroTag2: "h12",
+                      title: "Wieght",
+                      value: wieght,
+                      onPressed1: () {
+                        wieght++;
+                        setState(() {});
+                      },
+                      onPressed2: () {
+                        wieght--;
+                        setState(() {});
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: CustomAgeandWieghtWidget(
+                      color: secondColor,
+                      heroTag2: "h21",
+                      heroTag: "h22",
+                      title: "Age",
+                      value: age,
+                      onPressed1: () {
+                        age++;
+                        setState(() {});
+                      },
+                      onPressed2: () {
+                        age--;
+                        setState(() {});
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 25),
           ],
         ),
       ),
@@ -100,13 +131,42 @@ class CustomGender extends StatelessWidget {
   }
 }
 
-class CustomText extends StatelessWidget {
-  const CustomText({super.key, required this.title});
-
+class CustomButton extends StatelessWidget {
+  const CustomButton({super.key, this.onPressed, required this.title});
+  final void Function()? onPressed;
   final String title;
-
   @override
   Widget build(BuildContext context) {
-    return Text(title, style: textStylygray300w20px);
+    return TextButton(
+      style: TextButton.styleFrom(backgroundColor: butColor),
+      onPressed: onPressed,
+      child: Text(title, style: textStylwhite300w20px),
+    );
+  }
+}
+
+class BMICalculator {
+  BMICalculator({
+    required this.gender,
+    required this.height,
+    required this.age,
+    required this.wieght,
+  });
+  String gender;
+  int height;
+  int age;
+  int wieght;
+
+  double get calculatBMI => wieght / ((height / 100) * (height / 100)).round();
+  String get resultBMI {
+    if (calculatBMI < 18.5) {
+      return "UnderWeight";
+    } else if (calculatBMI < 25) {
+      return "Normal";
+    } else if (calculatBMI < 30) {
+      return "OverWeight";
+    } else {
+      return "Obese";
+    }
   }
 }
